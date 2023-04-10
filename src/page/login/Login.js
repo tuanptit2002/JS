@@ -14,6 +14,7 @@ function Login() {
       
         const resp = await loginAPI({username:username,password:password});
         if(resp.code==='200'){
+          navigate("/category")
             setAuth(resp.data)
         }else{
             alert("Error")

@@ -1,4 +1,5 @@
-import { CreateCart, DeleteCart, UpdateCreateCart } from "../service/cart.service";
+import { useEffect, useState } from "react";
+import { CreateCart, DeleteCart, UpdateCreateCart, searchCart } from "../service/cart.service";
 
 export function CreateCartnew(){
     let submit = (e) =>{
@@ -91,3 +92,55 @@ export function DeleteCartnew(){
         </div>
     )
 }
+
+export function SearchCart(){
+    let [CartArr, setCartArr] = useState([])
+    let [CartDTO, setCartDTO] = useState({
+        
+            "page": 0,
+            "size": 10,
+            "value": ""
+          
+    })
+    let getdata = async ()=>{
+        try{
+            let resp = await searchCart(CartDTO)
+            console.log(resp.data);
+            setCartArr ( [ {
+                totalElements:  resp.data.totalElements,
+                numberOfElements: resp.data.numberOfElements,
+                totalPages: resp.data.totalPages
+                }])
+        }catch(err){
+            console.log(err);
+        }
+    }
+    useEffect(() =>{
+        getdata();
+    },[CartDTO]
+    )
+    let handleSearchCart = (e) =>{
+        setCartDTO({...CartDTO,[e.target.name]: e.target.value})
+    }
+    return(
+        <div>
+        <input name="value" onChange={handleSearchCart} placeholder="search..."/>
+        <tr>
+                    <th>totalElements  </th>
+                    <th>numberOfElements  </th>
+                    <th>totalPages </th>
+                    
+                </tr>
+                {
+                    CartArr.map(item =>{
+                        return(<tr>
+                            <td>{item.totalElements}</td>
+                            <td>{item.numberOfElements}</td>
+                                   
+                   <td>{item.totalPages}</td>
+                         </tr>)
+                    })
+                }
+        </div>
+    )
+ }

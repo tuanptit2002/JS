@@ -1,4 +1,4 @@
-import axios from "axios";
+import { axiosInstance } from "./myaxios";
 
 export function BillCreate(databill){
   
@@ -14,13 +14,7 @@ export function BillCreate(databill){
       data : data
     };
     
-    axios.request(config)
-    .then((response) => {
-      console.log(JSON.stringify(response.data));
-    })
-    .catch((error) => {
-      console.log(error);
-    });
+    return handleResponse(config)
     
 }
 export function UpdateBill(databillnew){
@@ -36,14 +30,7 @@ export function UpdateBill(databillnew){
         data : data
       };
       
-      axios.request(config)
-      .then((response) => {
-        console.log(JSON.stringify(response.data));
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-      
+      return handleResponse(config)
 }
 export function DeleteBill(billdelete){
     let data = JSON.stringify(billdelete);
@@ -57,16 +44,9 @@ export function DeleteBill(billdelete){
         },
         data : data
       };
-      
-      axios.request(config)
-      .then((response) => {
-        console.log(JSON.stringify(response.data));
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-      
- }
+ return handleResponse(config)
+}
+
  export function searchBill(billDTO){
   let data = JSON.stringify(billDTO);
   
@@ -80,7 +60,24 @@ export function DeleteBill(billdelete){
     data : data
   };
   
- return axios.request(config)
- 
-  
- }
+  return handleResponse(config)
+}
+
+const handleResponse = async (config) => {
+  try {
+    let response = await axiosInstance(config);
+
+    let result = response.data;
+    return { code: 200, result };
+  } catch (error) {
+    console.log(error);
+
+    if (error.response) {
+      return { code: error.response.status };
+    } else if (error.request) {
+      return { code: 408 };
+    } else {
+      return { code: 500 };
+    }
+  }
+};

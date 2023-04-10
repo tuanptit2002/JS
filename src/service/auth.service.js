@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { axiosShop } from '../utils/axios';
 
 export const loginAPI = async (data) => {
   const config = {

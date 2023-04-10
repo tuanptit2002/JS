@@ -36,6 +36,7 @@ export function Product(){
         </div>
     )
 }
+
 export function UpDateProductnew(){
     let submit = (e)=>{
     e.preventDefault();

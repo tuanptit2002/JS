@@ -110,11 +110,11 @@ export function UpdateBillnew(){
         try{
             let resp = await searchBill(BillDTO)
             console.log(resp.data);
-            setBillArr (  {
+            setBillArr ( [ {
                 totalElements:  resp.data.totalElements,
-                numberOfElements: resp.data.resp.data,
+                numberOfElements: resp.data.numberOfElements,
                 totalPages: resp.data.totalPages
-                })
+                }])
         }catch(err){
             console.log(err);
         }

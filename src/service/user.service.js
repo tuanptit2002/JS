@@ -14,12 +14,24 @@ export function createUser(UserDTO){
     data : data
   };
   
-  axios.request(config)
-  .then((response) => {
-    console.log(JSON.stringify(response.data));
-  })
-  .catch((error) => {
-    console.log(error);
-  });
+  return handleResponse(config)
 }
 
+const handleResponse = async (config) => {
+  try {
+    let response = await axiosInstance(config);
+
+    let result = response.data;
+    return { code: 200, result };
+  } catch (error) {
+    console.log(error);
+
+    if (error.response) {
+      return { code: error.response.status };
+    } else if (error.request) {
+      return { code: 408 };
+    } else {
+      return { code: 500 };
+    }
+  }
+};

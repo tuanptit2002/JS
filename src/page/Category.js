@@ -1,135 +1,144 @@
 // import { useState } from "react";
 import { useEffect, useState } from "react";
-import { CreateCategory, Delete,  UpdateCategory, searchCategoryAPI } from "../service/category.service";
+import { createCategoryAPI, deleteCategoryAPI, searchCategoryAPI, updateCategoryAPI } from "../service/category.service";
+import { Box, Button, FormControl, InputLabel, MenuItem, Select, Table, TableBody, TableCell, TableHead, TableRow, TextField } from "@mui/material";
+import { Delete, Send, Update } from "@mui/icons-material";
 
-export function CategoryAPI(){
-    let summit = (e) =>{
-        e.preventDefault();
-        let formdata = new FormData(e.target);
-        let category = {
-            title: formdata.get("title"),
-            description: formdata.get("description"),
-            featureImage: formdata.get("featureImage")
-        }
-        CreateCategory(category);
-    }
-    return(
-        <div>
-            <form onSubmit={summit}>
-            <label>Title:</label>
-            <input type="text" name="title"/>
-            <label>Description:</label>
-            <input type="text" name="description"/>
-            <label>FeatureImage:</label>
-            <input type="text" name="featureImage"/>
-            <button type="submit">Create</button>
-            </form>
-        </div>
-    )
-}
-export function UpdateCategoryAPI(){
-    // let [category, setCategory] = useState([]);
-    let submit = (e) =>{
-        e.preventDefault();
-        let formdata = new FormData(e.target);
-        let category = {
-            id: formdata.get("id"),
-            title: formdata.get("title"),
-            description: formdata.get("description"),
-            featureImage: formdata.get("featureImage")
-        }
-        UpdateCategory(category);
-    }
-    return(
-        <div>
-            <form onSubmit={submit}>
-            <label>ID:</label>
-            <input type="text" name ="id"/>
-            <label>Title:</label>
-            <input type="text" name="title"/>
-            <label>Description:</label>
-            <input type="text" name="description"/>
-            <label>FeatureImage:</label>
-            <input type="text" name="featureImage"/>
-            <button type="submit">Update</button>
-            </form>
-        </div>
-    )
-}
-export function DeleteCategory(){
-    let submit = (e) =>{
-        e.preventDefault();
-        let formdata = new FormData(e.target);
-        let category = {
-            id: formdata.get("id")
-            
-        }
-        Delete(category);
-    }
-    return(
-        <div>
-            <form onSubmit={submit}>
-            <label>ID:</label>
-            <input type="text" name ="id"/>
-            <button type="submit">Delete</button>
-            </form>
-        </div>
-    )
-}
 
-export function SearchAPI(){
-    let [categoryArr, setCategoryArr] = useState([])
-   
-    let [searchDTO, setSearchDTO] = useState({
+export function Category(){
+    let [categoryArr, setCategoryArr] = useState([]);
+
+    let [data,setData] = useState({
+        "value": "%%",
         "page": 0,
-  "size": 200,
-  "value": "",
-  "orders": [
-    {
-      "order": "ASC",
-      "property": "id"
-    }
-  ]
-    })
-    
-    let getData = async () =>{
-        try{
-            let resp = await searchCategoryAPI(searchDTO);
-            setCategoryArr(resp.data.data);
-        }catch(err){
-                console.log(err);
-        }
-    }
+        "size": 10
+    });
+
     useEffect(() => {
-      
-         getData();
-        
-      }, [searchDTO]);
-      let handleSearchCategory = (e) => {
-        setSearchDTO({ ...searchDTO, [e.target.name]: e.target.value });
+        const readData = async () =>{
+            const response = await searchCategoryAPI(data);
+            console.log(response)
+            setCategoryArr(response.data)
+            if(response) {
+                return;
+            }
+        }
+        readData();
+    },[data])
+
+    let  handleTextChange = (e)=>{
+        setData({...data,[e.target.name]:e.target.value})
+    }
+
+    let [categoryDTO, setcategoryDTO] = useState({
+        title: "",
+        description: "",
+        featureImage:""
+    });
+
+    let handleChangeCategory = (e) => {
+        setcategoryDTO({ ...categoryDTO, [e.target.name]: e.target.value });
+
+    };
+
+    let createCategory = async () => {
+        try {
+          console.log(categoryDTO);
+          let resp = await createCategoryAPI(categoryDTO); 
+          console.log("Tạo student thành công");
+          setCategoryArr(resp.data)
+        } catch (err) {
+          console.log(err);
+        }
       };
-      return(
+
+      let updateCategory = async () => {
+        try {
+          console.log(categoryDTO);
+          let resp = await updateCategoryAPI(categoryDTO); 
+          console.log("Update data: ", resp.data);
+          console.log("Update category thành công");
+          setCategoryArr(resp.data.data);
+        } catch (err) {
+          console.log(err);
+        }
+      };
+
+      let deleteCategory = async (id) => {
+        try {
+          let yes = window.confirm("Are you sure want to delete this item ?");
+          let resp = await deleteCategoryAPI(id); 
+          let newArray = categoryArr.filter(function (item) {
+          console.log(yes);
+            return item.id !== id;
+          });
+          console.log("Delete category thành công");
+          setCategoryArr(newArray.data.data);
+          
+        } catch (err) {
+          console.log(err);
+        }
+      }
+      
+    return (
         <div>
-            <input name="value" onChange={handleSearchCategory} placeholder="search..."/>
-           
-            <table>
-                <tr>
-                    <th>ID </th>
-                    <th>title </th>
-                    <th>description </th>
-                    <th>featureImage </th>
-                </tr>
+            
+      <th>Create Category</th>
+      <form>
+        
+        <TextField  label="CategoryTitle" name="title" onChange={handleChangeCategory} variant="standard" placeholder="categoryTitle..."/>
+        <TextField  label="CategoryDescription" name="description" onChange={handleChangeCategory} variant="standard" placeholder="categoryDescription..."/>
+        <TextField  label="CategoryFeatureImage" name="featureImage" onChange={handleChangeCategory} variant="standard" placeholder="categoryFeatureImage..."/>
+        <Button  onClick={createCategory}  startIcon={<Send/>} variant="outlined">Save </Button>
+        
+    
+        <Box
+            component="form"
+            sx={{'& .MuiTextField-root': { m: 1, width: '25ch' }, }}
+            noValidate
+            autoComplete="off"
+                 >
+            <TextField  label="Search" name ="value" onChange={handleTextChange}  variant="standard" placeholder="Search..."></TextField>
+          
+            <FormControl>
+               <InputLabel id="demo-simple-select-label">Size</InputLabel>
+                <Select name ="size" onChange={handleTextChange}>
+              
+                <MenuItem value="10">10</MenuItem>
+                <MenuItem value="20">20</MenuItem>
+            </Select>
+            </FormControl>
+            </Box>
+          
+            <Table  sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
+                <TableHead>
+                <TableRow>
+                    {/* <TableCell>ID</TableCell> */}
+                    <TableCell align="center">Title</TableCell>
+                    <TableCell align="center">Description</TableCell>
+                    <TableCell align="center">FeatureImage</TableCell>
+                </TableRow>
+                </TableHead>
+                <TableBody>
                 {
-                    categoryArr.map(item =>{
-                        return(<tr>
-                            <td>{item.id}</td>
-                            <td>{item.title}</td>
-                            <td>{item.description}</td>
-                            <td>{item.featureImage}</td>
-                        </tr>)
+                   categoryArr&& categoryArr.map(item => {
+                        return (
+                            <TableRow key={item.id}>
+                                {/* <TableCell>{item.id}</TableCell> */}
+                                <TableCell>{item.title}</TableCell> 
+                                <TableCell>{item.description}</TableCell>
+                                <TableCell>{item.featureImage}</TableCell>                                                               
+                                <TableCell>
+                                  <Button  onClick={() => deleteCategory(item.id)} startIcon={<Delete/>} variant="outlined">Delete </Button>
+                                  <Button  onClick={() => updateCategory(item.id)} startIcon={<Update/>} variant="outlined">Update</Button>
+                               </TableCell>
+                            </TableRow>
+                        )
                     })
                 }
-            </table>
-        </div>
-      )
+             </TableBody>   
+            </Table>
+           </form>
+         </div>
+    )
 }
